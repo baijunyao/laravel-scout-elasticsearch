@@ -27,4 +27,16 @@ class ElasticsearchServiceProvider extends ServiceProvider
             return new ElasticsearchEngine();
         });
     }
+
+    /**
+     * 在容器中注册绑定。
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->mergeConfigFrom(
+            __DIR__.'/Config/scout.php', 'scout'
+        );
+    }
 }
