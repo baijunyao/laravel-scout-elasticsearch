@@ -10,13 +10,7 @@ use Baijunyao\LaravelScoutElasticsearch\ElasticsearchClientTrait;
 class ElasticsearchEngine extends Engine
 {
     use ElasticsearchClientTrait;
-    /**
-     * Index where the models will be saved.
-     *
-     * @var string
-     */
-    protected $index;
-    
+
     /**
      * Elastic where the instance of Elastic|\Elasticsearch\Client is stored.
      *
@@ -30,7 +24,6 @@ class ElasticsearchEngine extends Engine
     public function __construct()
     {
         $this->elastic = $this->getElasticsearchClient();
-        $this->index = config('scout.elasticsearch.index');
     }
 
     /**
@@ -45,19 +38,22 @@ class ElasticsearchEngine extends Engine
 
         $models->each(function($model) use (&$params)
         {
+            $type = $model->searchableAs();
+            $index = config('scout.elasticsearch.prefix').$type;
             $params['body'][] = [
                 'update' => [
                     '_id' => $model->getKey(),
-                    '_index' => $this->index,
-                    '_type' => $model->searchableAs(),
+                    '_index' => $index,
+                    '_type' => $type,
                 ]
             ];
+            $doc = collect($model->toSearchableArray())->except(['created_at', 'updated_at', 'deleted_at']);
             $params['body'][] = [
-                'doc' => $model->toSearchableArray(),
+                'doc' => $doc,
                 'doc_as_upsert' => true
             ];
         });
-
+        // dd($params);die;
         $this->elastic->bulk($params);
     }
 
@@ -73,11 +69,13 @@ class ElasticsearchEngine extends Engine
 
         $models->each(function($model) use (&$params)
         {
+            $type = $model->searchableAs();
+            $index = config('scout.elasticsearch.prefix').$type;
             $params['body'][] = [
                 'delete' => [
                     '_id' => $model->getKey(),
-                    '_index' => $this->index,
-                    '_type' => $model->searchableAs(),
+                    '_index' => $index,
+                    '_type' => $type,
                 ]
             ];
         });
@@ -129,9 +127,11 @@ class ElasticsearchEngine extends Engine
      */
     protected function performSearch(Builder $builder, array $options = [])
     {
+        $type = $builder->model->searchableAs();
+        $index = config('scout.elasticsearch.prefix').$type;
         $params = [
-            'index' => $this->index,
-            'type' => $builder->index ?: $builder->model->searchableAs(),
+            'index' => $index,
+            'type' => $type,
             'body' => [
                 'query' => [
                     'bool' => [

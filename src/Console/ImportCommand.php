@@ -41,7 +41,8 @@ class ImportCommand extends Command
     {
         $class = $this->argument('model');
         $model = new $class;
-
+        // 主键id
+        $primaryKey = $model->getKeyName();
         // 获取需要索引的字段
         $columns = $model->toSearchableArray();
 
@@ -55,34 +56,45 @@ class ImportCommand extends Command
 
         // 分词器
         $analyzer = config('scout.elasticsearch.analyzer');
-        $columns = collect($columns)->except('id', 'created_at', 'updated_at', 'deleted_at')
-            ->transform(function () use ($analyzer) {
-                return [
-                    'type' => 'text',
-                    'analyzer' => $analyzer
-                ];
+        $columns = collect($columns)->except(['created_at', 'updated_at', 'deleted_at'])
+                ->transform(function ($v, $k) use ($analyzer, $primaryKey) {
+                if ($k == $primaryKey) {
+                    return [
+                        'type' => 'long'
+                    ];
+                } else {
+                    return [
+                        'type' => 'text',
+                        'analyzer' => $analyzer
+                    ];
+                }
             });
 
         // 创建索引
-        $index = [
-            'index' => config('scout.elasticsearch.index')
+        $type = $model->searchableAs();
+        $data = [
+            'index' => config('scout.elasticsearch.prefix').$type
         ];
 
-        $settings = config('scout.elasticsearch.settings');
+        $client = $this->getElasticsearchClient();
 
-        if (! empty($settings)) {
-            $index['body']['settings'] = $settings;
+        // 判断索引是否存在 如果不存在 则初始索引
+        if (! $client->indices()->exists($data)) {
+            $settings = config('scout.elasticsearch.settings');
+            if (! empty($settings)) {
+                $data['body']['settings'] = $settings;
+            }
+            $client->indices()->create($data);
         }
 
         if (! empty($columns)) {
-            $index['body']['mappings'][$model->searchableAs()] = [
+            $data['body'] = [
                 '_source' => array('enabled' => true),
                 'properties' => $columns,
             ];
+            $data['type'] = $type;
+            $client->indices()->putMapping($data);
         }
-
-        $client = $this->getElasticsearchClient();
-        $client->indices()->create($index);
 
         // 导入数据
         $this->call('scout:import', [

@@ -44,8 +44,9 @@ class FlushCommand extends Command
             'model' => $class
         ]);
         $model = new $class;
+
         $index = [
-            'index' => config('scout.elasticsearch.index')
+            'index' => config('scout.elasticsearch.prefix').$model->searchableAs()
         ];
         $client = $this->getElasticsearchClient();
         $client->indices()->delete($index);
