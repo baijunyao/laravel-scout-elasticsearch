@@ -128,6 +128,8 @@ class ElasticsearchEngine extends Engine
     protected function performSearch(Builder $builder, array $options = [])
     {
         $type = $builder->model->searchableAs();
+        $filter = config('scout.elasticsearch.filter');
+        $query = str_replace($filter, '', $builder->query);
         $index = config('scout.elasticsearch.prefix').$type;
         $params = [
             'index' => $index,
@@ -135,7 +137,13 @@ class ElasticsearchEngine extends Engine
             'body' => [
                 'query' => [
                     'bool' => [
-                        'must' => [['query_string' => [ 'query' => "{$builder->query}"]]]
+                        'must' => [
+                            [
+                                'query_string' => [
+                                    'query' => $query
+                                ]
+                            ]
+                        ]
                     ]
                 ]
             ]
