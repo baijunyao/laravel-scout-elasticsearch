@@ -11,7 +11,5 @@
 
 ### 链接
 - 博客：[https://baijunyao.com](http://baijunyao.com)   
-- github：[https://github.com/baijunyao/laravel-bjyblog](https://github.com/baijunyao/laravel-bjyblog)   
-- 码云：[https://gitee.com/baijunyao/laravel-bjyblog](https://gitee.com/baijunyao/laravel-bjyblog)
-
-
+- github：[https://github.com/baijunyao/laravel-scout-elasticsearch](https://github.com/baijunyao/laravel-scout-elasticsearch)   
+- 码云：[https://gitee.com/baijunyao/laravel-scout-elasticsearch](https://gitee.com/baijunyao/laravel-scout-elasticsearch)
