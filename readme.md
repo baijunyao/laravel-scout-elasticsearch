@@ -7,7 +7,8 @@
 [详细文档](https://baijunyao.com/docs/laravel-scout-elasticsearch)
 
 ### 教程
-[laravel下elasticsearch+analysis-ik实现中文全文搜索](https://baijunyao.com/article/156)
+- [laravel下elasticsearch+analysis-ik实现中文全文搜索](https://baijunyao.com/article/156)
+- [腾讯云开发者实验室](https://cloud.tencent.com/developer/labs/lab/10433)
 
 ### 链接
 - 博客：[https://baijunyao.com](http://baijunyao.com)   
