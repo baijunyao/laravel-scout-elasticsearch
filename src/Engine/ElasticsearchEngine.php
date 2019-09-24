@@ -53,7 +53,7 @@ class ElasticsearchEngine extends Engine
                 'doc_as_upsert' => true
             ];
         });
-        // dd($params);die;
+
         $this->elastic->bulk($params);
     }
 
@@ -209,11 +209,12 @@ class ElasticsearchEngine extends Engine
     /**
      * Map the given results to instances of the given model.
      *
-     * @param  mixed  $results
-     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param Builder $builder
+     * @param mixed $results
+     * @param \Illuminate\Database\Eloquent\Model $model
      * @return Collection
      */
-    public function map($results, $model)
+    public function map(Builder $builder, $results, $model)
     {
         if ($results['hits']['total'] === 0) {
             return Collection::make();
@@ -240,6 +241,13 @@ class ElasticsearchEngine extends Engine
     public function getTotalCount($results)
     {
         return $results['hits']['total'];
+    }
+
+    public function flush($model)
+    {
+        $this->elastic->indices()->delete([
+            'index' => config('scout.elasticsearch.prefix') . $model->searchableAs()
+        ]);
     }
 
     /**
