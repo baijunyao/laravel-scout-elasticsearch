@@ -15,14 +15,6 @@ class ElasticsearchServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // 注册命令
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                ImportCommand::class,
-                FlushCommand::class,
-            ]);
-        }
-
         app(EngineManager::class)->extend('elasticsearch', function($app) {
             return new ElasticsearchEngine();
         });
