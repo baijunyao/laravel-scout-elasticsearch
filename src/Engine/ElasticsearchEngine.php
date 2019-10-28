@@ -175,7 +175,13 @@ class ElasticsearchEngine extends Engine
             );
         }
 
-        return $this->elastic->search($params);
+        $result = $this->elastic->search($params);
+
+        if (is_array($result['hits']['total'])) {
+            $result['hits']['total'] = $result['hits']['total']['value'];
+        }
+
+        return $result;
     }
 
     /**
