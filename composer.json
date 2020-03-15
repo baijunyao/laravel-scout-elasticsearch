@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "laravel/scout": "^7.1",
+        "laravel/scout": "^7.1 | ^8.0",
         "elasticsearch/elasticsearch": "^6.0"
     },
     "autoload": {
